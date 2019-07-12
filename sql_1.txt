@@ -1,0 +1,24 @@
+# first query
+SELECT
+    trip_id,
+    duration
+ FROM
+    trips
+WHERE
+    duration > 500
+ORDER BY duration DESC;
+
+# second query
+SELECT *
+ FROM
+    stations
+WHERE
+    station_id = 84;
+
+# third query
+SELECT mintemperaturef
+FROM
+    weather
+ WHERE
+    events LIKE 'Rain' AND
+	zip = 94301;
