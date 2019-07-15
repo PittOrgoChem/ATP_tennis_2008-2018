@@ -1,0 +1,49 @@
+# first query
+SELECT t.trip_id,
+	t.duration
+FROM trips t
+JOIN weather w
+ON t.zip_code = w.zip
+WHERE w.events = 'Rain'
+GROUP BY t.trip_id,
+	t.duration
+ORDER BY t.duration DESC
+LIMIT 3;
+
+# second query
+SELECT st.name,
+    COUNT(s.docks_available) AS times
+FROM status s
+JOIN stations st
+ON s.station_id = st.station_id
+WHERE docks_available = 0
+GROUP BY st.name
+ORDER BY times DESC
+LIMIT 1;
+
+# third query
+SELECT st.name,
+	st.dockcount,
+	COUNT(t.start_terminal) AS numb_trips
+FROM trips t
+JOIN stations st
+ON t.start_terminal = st.station_id
+GROUP BY st.name, st.dockcount
+ORDER BY st.dockcount DESC;
+
+# fourth query
+WITH
+    longest
+AS (
+    SELECT SUBSTRING(start_date from 1 for 10) AS date,
+		MAX(duration) AS max_duration
+	FROM trips
+	GROUP BY date
+)
+SELECT
+    l.date,
+    l.max_duration
+FROM longest l
+JOIN weather w
+ON l.date = w.date
+WHERE w.events LIKE 'Rain';
