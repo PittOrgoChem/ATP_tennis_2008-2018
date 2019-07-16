@@ -1,0 +1,75 @@
+# Question #1
+
+SELECT *
+FROM sfo_listings
+ORDER BY price DESC
+LIMIT 1;
+
+# Question #2
+
+WITH
+    popular
+AS (
+    SELECT
+        listing_id,
+       	COUNT(listing_id) AS nights_taken
+    FROM
+        sfo_calendar
+	WHERE available LIKE 't'
+    GROUP BY listing_id
+)
+SELECT
+    l.neighbourhood,
+	(AVG(pop.nights_taken) / 365)*100 AS perc_occup
+FROM
+    sfo_listings l
+JOIN
+    popular pop
+ON
+    l.id = pop.listing_id
+GROUP BY 1
+ORDER BY perc_occup DESC;
+
+# Question 3a
+
+WITH
+    monthly
+AS (
+	SELECT
+       	listing_id,
+		CAST (REPLACE(REPLACE(price, '$', ''), ',', '') AS FLOAT) AS c_price,
+		EXTRACT(year from calender_date) AS year,
+		EXTRACT(month from calender_date) AS month
+    FROM
+        sfo_calendar
+	WHERE available LIKE 't'
+)
+SELECT
+	m.month,
+	AVG(m.c_price) AS avg_price
+FROM
+    monthly m
+GROUP BY 1
+ORDER BY avg_price;
+
+# Question #3b
+
+WITH
+    busiest
+AS (
+    SELECT
+        listing_id,
+       	(CAST(COUNT(listing_id) filter (where available = 't') AS FLOAT) / 31) * 100 AS perc_occup,
+		EXTRACT(year from calender_date) AS year,
+		EXTRACT(month from calender_date) AS month
+    FROM sfo_calendar
+    GROUP BY listing_id, month, year
+)
+SELECT
+    month,
+	year,
+	AVG(perc_occup) AS avg_perc_occup
+FROM
+    busiest
+GROUP BY 1, 2
+ORDER BY avg_perc_occup DESC;
